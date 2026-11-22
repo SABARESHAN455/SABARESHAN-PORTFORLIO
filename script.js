@@ -39,14 +39,21 @@ form.addEventListener("submit", async (event) => {
   status.textContent = "Sending...";
   try {
     const payload = Object.fromEntries(new FormData(form).entries());
-    const response = await fetch("/api/contact", {
+    const response = await fetch("https://formsubmit.co/ajax/manisaba561@gmail.com", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify({
+        name: payload.name,
+        email: payload.email,
+        message: payload.message,
+        _replyto: payload.email,
+        _subject: `New portfolio message from ${payload.name}`,
+        _template: "table"
+      })
     });
-    const result = await response.json();
-    if (!response.ok) throw new Error(result.message || "Unable to send message.");
-    status.textContent = result.message;
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || result.success !== true) throw new Error(result.message || "Unable to send message.");
+    status.textContent = "Thanks! Your message has been sent.";
     form.reset();
   } catch (error) {
     status.textContent = error.message || "Something went wrong. Please try again.";
